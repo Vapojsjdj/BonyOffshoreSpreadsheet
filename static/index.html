@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحليل فيديو YouTube</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>تحليل فيديو YouTube</h1>
+        <input type="text" id="videoUrl" placeholder="أدخل رابط فيديو YouTube هنا">
+        <button onclick="analyzeVideo()">تحليل الفيديو</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function analyzeVideo() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'جارٍ التحليل...';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: videoUrl }),
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.textContent = data.error;
+                } else {
+                    let result = `معرف الفيديو: ${data.video_id}\n\n`;
+                    result += "اللقطات الخمس الأكثر مشاهدة:\n";
+                    data.top_timestamps.forEach((timestamp, index) => {
+                        result += `${index + 1}. ${timestamp}\n`;
+                    });
+                    resultDiv.textContent = result;
+                }
+            } catch (error) {
+                resultDiv.textContent = 'حدث خطأ أثناء تحليل الفيديو: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
